@@ -1,9 +1,9 @@
 package com.crudstudy.board.service;
 
 import com.crudstudy.board.domain.File;
+import com.crudstudy.board.dto.FileDetailResponseDto;
 import com.crudstudy.board.domain.Post;
 import com.crudstudy.board.dto.FileUploadResult;
-import com.crudstudy.board.dto.PostRequestDto;
 import com.crudstudy.board.exception.CustomException;
 import com.crudstudy.board.exception.ErrorCode;
 import com.crudstudy.board.repository.FileRepository;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 파일 업로드/삭제 비즈니스 로직 처리 (저장하기 전)
@@ -52,6 +51,7 @@ public class FileService {
         }
     }
     public void uploadFile(Post post, MultipartFile file) {
+        System.out.println("contentType : " + file.getContentType());
         FileUploadResult result = fileStorage.save(file);
 
         File fileEntity = File.builder()
@@ -60,19 +60,28 @@ public class FileService {
                 .storedName(result.getStoredName())
                 .filePath(result.getFilePath())
                 .fileSize(file.getSize())
+                .contentType(file.getContentType())
                 .build();
         fileRepository.save(fileEntity);
     }
 
+    /**
+     * [refactoring]
+     *  param : post->postId 로 변경
+     *  save는 post를 참조하고있는 file을 빌드해야되기때문에
+     *  post 객체 필요 (id만 저장 X -> jpa 연관관계가 끊어짐)
+     *  delete나 조회는 이미 저장된 post를 file리포에서 찾으면 되기때문에
+     *  post 객체 불필요 (id로 접근가능)
+     */
     //POST 삭제 시 -> 연관 파일 하드딜리트
-    public void deleteAllFile(Post post){
-        List<File> files = fileRepository.findByPost(post);
+    public void deleteAllFile(Long postId){
+        List<File> files = fileRepository.findByPostId(postId);
         if(files != null && !files.isEmpty()){
             for(File file : files){
                 fileStorage.delete(file.getStoredName());
             }
         }
-        fileRepository.deleteByPost(post);
+        fileRepository.deleteByPostId(postId);
     }
 
     public void deleteSelectedFile(List<Long> fileIds){
@@ -84,5 +93,19 @@ public class FileService {
             }
             fileRepository.deleteAllByIdIn(fileIds);
         }
+    }
+
+    //포스트상세조회 - 파일표시
+    public List<FileDetailResponseDto> getFilesByPost(Long postId){
+        //파일찾기
+        return fileRepository.findByPostId(postId)
+                .stream()
+                .map(file -> new FileDetailResponseDto(
+                        file.getOriginalName(),
+                        file.getFilePath(),
+                        file.getFileSize(),
+                        file.getContentType()
+                        ))
+                .toList();
     }
 }

@@ -2,14 +2,15 @@ package com.crudstudy.board.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class PostRequestDto {
+public class PostDetailResponseDto {
     private String title;
     private String content;
-    private List<MultipartFile> files;
+    private List<FileDetailResponseDto> files;
+    private LocalDateTime createdAt;
 }

@@ -15,5 +15,6 @@ import java.time.LocalDateTime;
 public abstract class BaseTime extends Base {
     @Column(name = "updated_at")
     @LastModifiedDate
-    private LocalDateTime updatedAt;
+    protected LocalDateTime updatedAt;
+//    private LocalDateTime updatedAt;
 }

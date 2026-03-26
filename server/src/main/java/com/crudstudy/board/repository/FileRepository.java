@@ -20,11 +20,12 @@ public interface FileRepository extends JpaRepository<File,Long> {
      */
     @Transactional
     @Modifying
-    void deleteByPost(Post post);
+    void deleteByPostId(Long postId);
 
     @Transactional
     @Modifying
     void deleteAllByIdIn(List<Long> ids);
 
-    List<File> findByPost(Post post);
+    //해당 글의 파일조회용
+    List<File> findByPostId(Long postId);
 }

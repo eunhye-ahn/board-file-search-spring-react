@@ -1,6 +1,8 @@
 package com.crudstudy.board.service;
 
 import com.crudstudy.board.domain.Post;
+import com.crudstudy.board.dto.FileDetailResponseDto;
+import com.crudstudy.board.dto.PostDetailResponseDto;
 import com.crudstudy.board.dto.PostRequestDto;
 import com.crudstudy.board.dto.PostUpdateRequestDto;
 import com.crudstudy.board.exception.CustomException;
@@ -29,7 +31,7 @@ public class PostService {
      */
     //글작성
     @Transactional
-    public Post save(PostRequestDto request, List<MultipartFile> files) {
+    public void save(PostRequestDto request, List<MultipartFile> files) {
         //글 저장
         Post post = Post.builder()
                 .title(request.getTitle())
@@ -37,7 +39,6 @@ public class PostService {
                 .build();
         postRepository.save(post);
         fileService.uploadFiles(post,files);
-        return post;
     }
 
     /**
@@ -56,7 +57,7 @@ public class PostService {
                 .orElseThrow(()-> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         //같은 postId 쓰는 파일 하드딜리트
-        fileService.deleteAllFile(post);
+        fileService.deleteAllFile(post.getId());
 
         //소프트 딜리트 > 더티체킹으로 db 자동 update
         post.delete();
@@ -76,5 +77,20 @@ public class PostService {
 
         //삭제파일아이디로 파일 삭제 - 더티체킹
         fileService.deleteSelectedFile(request.getDeleteFileIds());
+    }
+
+    //글 상세조회
+    public PostDetailResponseDto getPostDetail(Long postId) {
+        //포스트찾기
+        Post post = postRepository.findById(postId)
+                .orElseThrow(()-> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        //파일서비스 호출
+        List<FileDetailResponseDto> files = fileService.getFilesByPost(post.getId());
+        //dto에 담기
+        System.out.println("updatedAt:"+post.getUpdatedAt());
+        System.out.println("createdAt:"+post.getCreatedAt()); //jpa가 못읽어옴
+        return new PostDetailResponseDto(post.getTitle(), post.getContent(),
+                files, post.getCreatedAt());
     }
 }

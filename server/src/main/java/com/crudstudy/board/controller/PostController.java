@@ -1,6 +1,7 @@
 package com.crudstudy.board.controller;
 
 import com.crudstudy.board.domain.Post;
+import com.crudstudy.board.dto.PostDetailResponseDto;
 import com.crudstudy.board.dto.PostRequestDto;
 import com.crudstudy.board.dto.PostUpdateRequestDto;
 import com.crudstudy.board.service.FileService;
@@ -71,4 +72,14 @@ public class PostController {
                 .build();
     }
 
+    //글 상세조회
+    @GetMapping("/api/posts/{postId}")
+    public ResponseEntity<?> getPost(@PathVariable Long postId) {
+        //글 상세조회서비스
+        PostDetailResponseDto post = postService.getPostDetail(postId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(post);
+    }
 }
