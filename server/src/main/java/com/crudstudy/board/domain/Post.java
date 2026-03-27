@@ -54,4 +54,7 @@ public class Post extends BaseTime {
         title = this.getTitle();
         content = this.getContent();
     }
+    public void increaseViewCount(){
+        viewCount++;
+    }
 }

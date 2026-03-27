@@ -81,11 +81,12 @@ public class PostService {
     }
 
     //글 상세조회
+    @Transactional
     public PostDetailResponseDto getPostDetail(Long postId) {
         //포스트찾기
         Post post = postRepository.findById(postId)
                 .orElseThrow(()-> new CustomException(ErrorCode.POST_NOT_FOUND));
-
+        post.increaseViewCount();
         //파일서비스 호출
         List<FileDetailResponseDto> files = fileService.getFilesByPost(post.getId());
         //dto에 담기

@@ -3,11 +3,8 @@ package com.crudstudy.board.controller;
 import com.crudstudy.board.dto.CommentResponseDto;
 import com.crudstudy.board.service.CommentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,14 +17,6 @@ public class CommentController {
     @PostMapping("/api/posts/{postId}/comments")
     public ResponseEntity<?> addComment(@PathVariable Long postId,
                                         @RequestBody String content) {
-        //댓글 받아서 db에 저장 postId에 맞게
-        //commentService.saveComment(Long postId, CommentRequestDto comment){
-        //Comment comment = Comment.build()
-        //                  .post(postId)
-        //                  .comment(content)
-        //                  .build();
-        //  commentRepository.save(comment);
-        // }
         commentService.saveComment(postId, content);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
