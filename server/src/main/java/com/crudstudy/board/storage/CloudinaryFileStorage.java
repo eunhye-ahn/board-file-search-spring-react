@@ -69,8 +69,7 @@ public class CloudinaryFileStorage implements FileStorage {
         }
     }
 
-    @Override
-    public String getUrl(String filename) {
-        return "";
+    public String getUrl(String secureUrl) {
+        return secureUrl;
     }
 }

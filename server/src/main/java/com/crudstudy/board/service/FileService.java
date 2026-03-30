@@ -6,7 +6,9 @@ import com.crudstudy.board.domain.Post;
 import com.crudstudy.board.exception.CustomException;
 import com.crudstudy.board.exception.ErrorCode;
 import com.crudstudy.board.repository.FileRepository;
+import com.crudstudy.board.storage.CloudinaryFileStorage;
 import com.crudstudy.board.storage.FileStorage;
+import com.crudstudy.board.storage.LocalFileStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -140,13 +142,16 @@ public class FileService {
         //fileId로 db에서 파일 정보 조회, 없으면 예외 발생
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
-        //조회된 파일 경로를 Path 객체로 변환 > 파일시스템에서 파일을 읽으려면
-        //Path타입 필요
-        Path filePath = Paths.get(file.getFilePath());
 
-        //Path를 리소스로 변환후반환
-        //스프링이 리소스 타입을 바이트 데이터로 읽어서 클라에게 전달할 수 있음
-        return new FileDownloadResponseDto(file.getOriginalName(), new FileSystemResource(file.getFilePath()));
+        if(fileStorage instanceof LocalFileStorage localFileStorage){
+            Resource resource = localFileStorage.getResource(file.getFilePath());
+            return new FileDownloadResponseDto(file.getOriginalName(),resource);
+        }
+        if(fileStorage instanceof CloudinaryFileStorage cloudinaryFileStorage){
+            String url = cloudinaryFileStorage.getUrl(file.getFilePath());
+            return new FileDownloadResponseDto(file.getOriginalName(), url);
+        }
+        throw new CustomException(ErrorCode.FILE_NOT_FOUND);
     }
 
     /**
@@ -162,8 +167,15 @@ public class FileService {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
 
-        Resource resource = new FileSystemResource(file.getFilePath());
-
-        return new FileViewResponseDto(resource, file.getOriginalName(), file.getResourceType());
+//        Resource resource = ((LocalFileStorage)fileStorage).getResource(file.getFilePath());
+        if(fileStorage instanceof LocalFileStorage localFileStorage){
+            Resource resource = localFileStorage.getResource(file.getFilePath());
+            return new FileViewResponseDto(resource, file.getOriginalName(), file.getResourceType());
+        }
+        if(fileStorage instanceof CloudinaryFileStorage cloudinaryFileStorage){
+            String url = cloudinaryFileStorage.getUrl(file.getFilePath());
+            return new FileViewResponseDto(url, file.getOriginalName(), file.getResourceType());
+        }
+        throw new CustomException(ErrorCode.FILE_NOT_FOUND);
     }
 }

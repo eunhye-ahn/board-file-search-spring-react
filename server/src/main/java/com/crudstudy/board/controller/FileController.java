@@ -1,6 +1,5 @@
 package com.crudstudy.board.controller;
 
-import com.crudstudy.board.domain.File;
 import com.crudstudy.board.dto.FileDownloadResponseDto;
 import com.crudstudy.board.dto.FileViewResponseDto;
 import com.crudstudy.board.service.FileService;
@@ -23,21 +22,29 @@ public class FileController {
     @GetMapping("/api/files/download/{fileId}")
     public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) {
         FileDownloadResponseDto result = fileService.loadFile(fileId);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                /**
-                 * [WHAT] HTTP 헤더 > Content-Disposition 헤더
-                 *      : 브라우저에게 이 응답을 어떻게 처리할지 알려주는 헤더
-                 *
-                 *  Content-Disposition: inline      →  브라우저에서 바로보기
-                 * Content-Disposition: attachment  →  열지말고 바로 저장
-                 */
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + result.getFileName()+"\"")
-                //바이너리 파일 명시
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(result.getResource());
+        if(result.getResource() != null) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    /**
+                     * [WHAT] HTTP 헤더 > Content-Disposition 헤더
+                     *      : 브라우저에게 이 응답을 어떻게 처리할지 알려주는 헤더
+                     *
+                     *  Content-Disposition: inline      →  브라우저에서 바로보기
+                     * Content-Disposition: attachment  →  열지말고 바로 저장
+                     */
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + result.getFileName() + "\"")
+                    //바이너리 파일 명시
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(result.getResource());
+        }
+        else {
+            //클라우디너리 리다이렉트
+            return ResponseEntity
+                    .status(HttpStatus.FOUND)
+                    .header(HttpHeaders.LOCATION, result.getUrl() + "?fl_attachment=true")
+                    .build();
+        }
     }
 
     @GetMapping("/api/files/view/{fileId}")
@@ -45,11 +52,19 @@ public class FileController {
 
         FileViewResponseDto response = fileService.getViewFile(fileId);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\""+response.getFileName()+"\"")
-                .contentType(MediaType.parseMediaType(response.getContentType()))
-                .body(response.getResource());
+        if(response.getResource() != null) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "inline; filename=\""+response.getFileName()+"\"")
+                    .contentType(MediaType.parseMediaType(response.getResourceType()))
+                    .body(response.getResource());
+        }
+        else{
+            return ResponseEntity
+                    .status(HttpStatus.FOUND)
+                    .header(HttpHeaders.LOCATION, response.getUrl())
+                    .build();
+        }
     }
 }

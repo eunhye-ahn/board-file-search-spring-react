@@ -1,11 +1,15 @@
 package com.crudstudy.board.storage;
 
 
+import com.crudstudy.board.domain.File;
 import com.crudstudy.board.dto.FileUploadResult;
+import com.crudstudy.board.dto.FileViewResponseDto;
 import com.crudstudy.board.exception.CustomException;
 import com.crudstudy.board.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -72,8 +76,7 @@ public class LocalFileStorage implements FileStorage {
         }
     }
 
-    @Override
-    public String getUrl(String filename) {
-        return "";
+    public Resource getResource(String filePath){
+        return new FileSystemResource(filePath);
     }
 }
