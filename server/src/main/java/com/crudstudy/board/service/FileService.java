@@ -106,6 +106,7 @@ public class FileService {
         return fileRepository.findByPostId(postId)
                 .stream()
                 .map(file -> new FileDetailResponseDto(
+                        file.getId(),
                         file.getOriginalName(),
                         file.getFilePath(),
                         file.getFileSize(),
@@ -174,6 +175,7 @@ public class FileService {
         }
         if(fileStorage instanceof CloudinaryFileStorage cloudinaryFileStorage){
             String url = cloudinaryFileStorage.getUrl(file.getFilePath());
+            System.out.println("file:"+file.getId());
             return new FileViewResponseDto(file.getId(), url, file.getOriginalName(), file.getResourceType());
         }
         throw new CustomException(ErrorCode.FILE_NOT_FOUND);

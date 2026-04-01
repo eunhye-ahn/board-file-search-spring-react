@@ -1,11 +1,11 @@
 //파일다운로드
 export const downloadFile = (fileId: number) => {
-    window.open(`/api/files/download/${fileId}`);
+    window.open(`http://localhost:8080/api/files/download/${fileId}`);
 }
 
 //파일바로보기
 export const viewFile = (fileId: number) => {
-    window.open(`/api/files/view/${fileId}`)
+    window.open(`http://localhost:8080/api/files/view/${fileId}`)
 }
 
 

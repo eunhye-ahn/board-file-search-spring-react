@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import { getPost } from "../../api/apis/postApi";
+import { deletePost, getPost } from "../../api/apis/postApi";
 import { useNavigate, useParams } from "react-router-dom";
 import type { PostDetailResponse } from "../../types/Post";
-import { viewFile } from "../../api/apis/fileApi";
+import { downloadFile, viewFile } from "../../api/apis/fileApi";
 import { CommentSection } from "../comment/CommentSection";
 
 export const PostPage = () => {
@@ -31,7 +31,10 @@ export const PostPage = () => {
             .finally(() => setLoading(false));
     }, [postIdNum]);
 
-
+    const handleDeletePost = (postIdNum: number) => {
+        deletePost(postIdNum)
+            .then(() => navigate("/"))
+    }
 
     if (!postId) return <div>잘못된 접근입니다</div>;
     if (loading) return <div>로딩중...</div>
@@ -46,8 +49,8 @@ export const PostPage = () => {
                     <h2>게시글 상세</h2>
                 </div>
                 <div>
-                    <button>수정</button>
-                    <button>삭제</button>
+                    <button onClick={() => navigate(`/posts/${postIdNum}/update`)}>수정</button>
+                    <button onClick={() => handleDeletePost(postIdNum)}>삭제</button>
                 </div>
             </div>
             {/*상세테이블*/}
@@ -65,11 +68,13 @@ export const PostPage = () => {
                     </tr>
                     <tr>
                         <th>첨부파일</th>
-                        <td colSpan={3}>{data.files.map(file => (<>
-                            <span key={file.filePath}>{file.fileName}</span>
-                            <button onClick={() => viewFile(file.fileId)}>바로보기</button>
-                        </>
-                        ))}</td>
+                        <td colSpan={3}>{data.files.map(file => (
+                            <div>
+                                <span key={file.filePath} onClick={() => downloadFile(file.fileId)}>{file.fileName}</span>
+                                <button onClick={() => viewFile(file.fileId)}>바로보기</button>
+                            </div>
+                        )
+                        )}</td>
                     </tr>
                 </tbody>
             </table>

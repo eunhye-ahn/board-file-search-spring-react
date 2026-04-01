@@ -32,6 +32,7 @@ export const HomePage = () => {
     return (
         <div>
             <h1>게시판</h1>
+            <button onClick={() => navigate("/posts")}>글 작성</button>
             <table>
                 <thead>
                     <tr>

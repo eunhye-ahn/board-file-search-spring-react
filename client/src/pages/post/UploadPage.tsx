@@ -65,12 +65,3 @@ export const UploadPage = () => {
 
     )
 }
-
-/**
- * export const createPost = (data: PostCreateRequest, files?: File[]) => {
-    const formData = new FormData();
-    formData.append("request", new Blob([JSON.stringify(data)], { type: "application.json" }));
-    files?.forEach(file => formData.append("files", file));
-    return api.post("/api/posts", formData);
-}
- */

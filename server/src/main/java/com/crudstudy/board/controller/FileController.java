@@ -61,6 +61,7 @@ public class FileController {
                     .body(response.getResource());
         }
         else{
+            System.out.print(response.getUrl());
             return ResponseEntity
                     .status(HttpStatus.FOUND)
                     .header(HttpHeaders.LOCATION, response.getUrl())

@@ -45,8 +45,14 @@ public class Comment extends BaseTime {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    /**
+     * Boolean (대문자) - null 허용
+     * boolean (소문자) - null 불가, 기본값 false
+     * @Builder 쓰면 기본값이 무시되어서 명시 필요
+     */
     @Column(nullable = false, name = "is_deleted")
-    private Boolean isDeleted = false;
+    @Builder.Default
+    private boolean isDeleted = false;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;

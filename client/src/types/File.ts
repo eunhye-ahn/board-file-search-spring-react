@@ -14,6 +14,7 @@ export interface FileByPostsListResponse {
 
 // //파일 바로보기
 // export interface FileViewResponse {
+//     fileId: number,
 //     url: string,
 //     fileName: string,
 //     resourceType: string

@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class FileDetailResponseDto {
+    private Long fileId;
     private String fileName;
     private String filePath;
     private Long fileSize;

@@ -1,8 +1,9 @@
 //댓글조회(페이징)
 export interface commentResponse {
-    conmmentId: number,
+    commentId: number,
     content: string,
-    createdAt: string //?
+    createdAt: string,
+    isDeleted: boolean
 }
 
 export interface commentRequest {

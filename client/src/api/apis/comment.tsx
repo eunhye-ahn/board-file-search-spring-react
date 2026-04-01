@@ -8,12 +8,11 @@ export const addComment = (postId: number, data: commentRequest) => {
 
 //댓글삭제
 export const deleteComment = (commentId: number) => {
-    return api.delete(`/api/posts/comments/${commentId}`);
+    return api.delete(`/api/comments/${commentId}`);
 }
-
 //댓글수정
 export const updateComment = (commentId: number, data: commentRequest) => {
-    return api.put(`/api/posts/comments/${commentId}`, data);
+    return api.put(`/api/comments/${commentId}`, data);
 }
 
 //댓글조회

@@ -62,7 +62,7 @@ public class CommentService {
         Pageable pageable = PageRequest.of(page-1, 3, Sort.by("createdAt").descending());
         Post post = postRepository.findById(postId)
                 .orElseThrow(()->new CustomException(ErrorCode.POST_NOT_FOUND));
-        return commentRepository.findByPost(post, pageable)
+        return commentRepository.findByPostAndIsDeletedFalse(post, pageable)
                 .map(comment -> new CommentResponseDto(comment.getId(),comment.getContent(),comment.getCreatedAt()));
     }
     /**
