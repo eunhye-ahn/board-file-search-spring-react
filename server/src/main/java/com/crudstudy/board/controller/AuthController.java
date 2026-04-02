@@ -2,10 +2,14 @@ package com.crudstudy.board.controller;
 
 import com.crudstudy.board.dto.LoginRequestDto;
 import com.crudstudy.board.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,7 +44,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-
     //login
     @PostMapping("/api/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto request) {
@@ -50,5 +53,12 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .build();
+    }
+    //logout
+    @PostMapping("/api/logout")
+    public ResponseEntity<?> logout(@AuthenticationPrincipal UserDetails user, HttpServletResponse response) {
+        //쿠키삭제+서버에세션삭제
+        authService.logout(user, response);
+        //리턴 ok
     }
 }

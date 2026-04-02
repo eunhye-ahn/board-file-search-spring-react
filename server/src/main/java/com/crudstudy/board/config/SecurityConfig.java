@@ -38,6 +38,11 @@ public class SecurityConfig {
                 .formLogin(form ->form.disable())
                 .httpBasic(httpBasic ->httpBasic.disable())
 
+                //세션제어(중복로그인 시 기존 세션 만료)
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                        .expiredUrl("/login?expired"))
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/login","/api/register").permitAll()
                         .anyRequest().authenticated()
