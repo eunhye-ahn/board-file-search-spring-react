@@ -3,6 +3,7 @@ import { getAllPosts } from "../../api/apis/postApi";
 import type { PostListResponse } from "../../types/Post";
 import { downloadFile } from "../../api/apis/fileApi";
 import { useNavigate } from "react-router-dom";
+import { logout } from "../../api/apis/authApi";
 /*
 export interface PostListResponse {
     content: PostItem[], //게시글 목록
@@ -29,8 +30,14 @@ export const HomePage = () => {
         console.log(data);
     }, [page]);
 
+    const handleLogout = () => {
+        logout()
+            .then(() => navigate("/login"))
+    }
+
     return (
         <div>
+            <button onClick={handleLogout}>로그아웃</button>
             <h1>게시판</h1>
             <button onClick={() => navigate("/posts")}>글 작성</button>
             <table>
