@@ -17,6 +17,7 @@ export interface PostUpdateRequest {
 export interface PostDetailResponse {
     postId: number,
     title: string,
+    userName: string,
     content: string,
     createdAt: string,
     files: FileDetailResponse[]
@@ -32,6 +33,7 @@ export interface PostListResponse {
 }
 
 export interface PostItem {
+    userName: string,
     postId: number,
     title: string,
     createdAt: string,

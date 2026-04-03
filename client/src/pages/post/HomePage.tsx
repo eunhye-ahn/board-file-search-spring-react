@@ -58,6 +58,7 @@ export const HomePage = () => {
                     <tr>
                         <th>번호</th>
                         <th>제목</th>
+                        <th>작성자</th>
                         <th>등록일</th>
                         <th>조회</th>
                         <th>첨부</th>
@@ -72,6 +73,7 @@ export const HomePage = () => {
                         <tr onClick={() => navigate(`/posts/${post.postId}`)}>
                             <td>{index + 1}</td>
                             <td>{post.title}</td>
+                            <td>{post.userName}</td>
                             <td>{post.createdAt}</td>
                             <td>{post.viewCount}</td>
                             <td>

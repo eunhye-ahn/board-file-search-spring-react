@@ -59,7 +59,7 @@ export const PostPage = () => {
                 <tbody>
                     <tr>
                         <th>작성자</th>
-                        <td>..</td>
+                        <td>{data.userName}</td>
                         <th>등록일</th>
                         <td>{data.createdAt}</td>
                     </tr>

@@ -4,6 +4,7 @@ import com.crudstudy.board.domain.Post;
 import com.crudstudy.board.dto.*;
 import com.crudstudy.board.service.FileService;
 import com.crudstudy.board.service.PostService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,6 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,10 +42,15 @@ public class PostController {
     //글작성
     @PostMapping(value="/api/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createPost(
+            HttpSession session,
             @RequestPart PostRequestDto request,
             @RequestPart(required = false) List<MultipartFile> files
             ) {
-        PostCreateResponseDto result = postService.save(request,files);
+        SecurityContext context = (SecurityContext) session.getAttribute(
+                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY
+        );
+        String email = context.getAuthentication().getName();
+        PostCreateResponseDto result = postService.save(email, request,files);
         return ResponseEntity.
                 status(HttpStatus.CREATED)
                 .body(result);

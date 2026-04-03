@@ -11,6 +11,7 @@ import java.util.List;
 public class PostDetailResponseDto {
     private String title;
     private String content;
+    private String userName;
     private List<FileDetailResponseDto> files;
     private LocalDateTime createdAt;
 }

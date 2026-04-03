@@ -1,10 +1,12 @@
 package com.crudstudy.board.service;
 
 import com.crudstudy.board.domain.Post;
+import com.crudstudy.board.domain.User;
 import com.crudstudy.board.dto.*;
 import com.crudstudy.board.exception.CustomException;
 import com.crudstudy.board.exception.ErrorCode;
 import com.crudstudy.board.repository.PostRepository;
+import com.crudstudy.board.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +24,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final FileService fileService;
     private final CommentService commentService;
+    private final UserRepository userRepository;
 
     /**
      * [WHY] PostService 안에서 FileService를 호출처리하는 이유
@@ -33,11 +36,14 @@ public class PostService {
      */
     //글작성
     @Transactional
-    public PostCreateResponseDto save(PostRequestDto request, List<MultipartFile> files) {
+    public PostCreateResponseDto save(String email, PostRequestDto request, List<MultipartFile> files) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         //글 저장
         Post post = Post.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
+                .user(user)
                 .build();
         postRepository.save(post);
         fileService.uploadFiles(post,files);
@@ -92,11 +98,13 @@ public class PostService {
         post.increaseViewCount();
         //파일서비스 호출
         List<FileDetailResponseDto> files = fileService.getFilesByPost(post.getId());
-
+        //유저
+        User user = userRepository.findById(post.getUser().getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
         //dto에 담기
         System.out.println("updatedAt:"+post.getUpdatedAt());
         System.out.println("createdAt:"+post.getCreatedAt()); //jpa가 못읽어옴
-        return new PostDetailResponseDto(post.getTitle(), post.getContent(),
+        return new PostDetailResponseDto(post.getTitle(), post.getContent(), user.getName(),
                 files, post.getCreatedAt());
     }
 
@@ -126,11 +134,11 @@ public class PostService {
     //글 목록조회
     public PostPageResponseDto getPostList(int page) {
         Pageable pageable = PageRequest.of(page-1, 3, Sort.by("createdAt").descending());
-
         Page<PostListReponseDto> result = postRepository.findAll(pageable) //pageable 조건으로 post목록조회
                 .map(post -> new PostListReponseDto(
                         post.getId(),
                         post.getTitle(),
+                        post.getUser().getName(),
                         post.getCreatedAt(),
                         post.getViewCount(),
                         fileService.getFileDownload(post.getId())

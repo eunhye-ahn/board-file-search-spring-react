@@ -37,6 +37,10 @@ public class Post extends BaseTime {
     @Column(nullable = false)
     private String content;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id")
+    private User user;
+
     @Column(name="view_count")
     private int viewCount = 0;
 
