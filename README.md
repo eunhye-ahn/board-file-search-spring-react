@@ -26,46 +26,57 @@
 
 ---
 
-## 3. 파일 업로드 구조 설계
+## 3. 커스텀 어노테이션 기반 비밀번호 유효성 검사
+
+**구현 이유**
+> @Pattern을 써도되지만 나중에 비밀번호 변경같은 기능을 추가 고려
+
+**구현 방법**
+- @ValidPassword 어노테이션 생성
+- ConstraintValidator 구현체에서 정책 검사 로직 작성
+- @Valid와 동일하게 사용 가능
+
+**검증 레이어**
+| 레이어 | 방법 |
+|--------|------|
+| 서버 | @ValidPassword 커스텀 어노테이션 |
+| 클라 | 실시간 유효성 검사 |
+
+**추가
+서비스레이어에서 유연하게 유효성검사를 하는 방법도 있다고 함 추가공부필요
+
+---
+
+## 4. 파일 업로드 구조 설계
 
 > 유지보수 목적 — 인터페이스로 추상화 후 구현체 교체 방식
 
 | 구분 | 설명 |
 |------|------|
 | `FileStorageService` (interface) | 업로드/다운로드/삭제 추상화 |
-| `LocalFileStorageService` (구현체) | 로컬 파일시스템 저장 |
+| `LocalFileStorageService` (구현체) | 개발 테스트용 저장 |
+| `CloudinaryFileStorageService` (구현체) | 클라우디너리 외부저장소 저장 |
 | `S3FileStorageService` (구현체) | 추후 S3로 교체 시 구현체만 변경 |
+
+**저장소별 다운로드 방식 차이**
+
+| 저장소 | 방식 |
+|--------|------|
+| Cloudinary, S3 | URL로 브라우저에서 직접 접근 |
+| 로컬 | 서버에서 파일을 직접 읽어 바이너리로 변환 후 전송 |
+
+로컬 저장소는 외부에서 직접 접근이 불가능해서 서버를 거쳐야 하므로
+Cloudinary, S3 대비 로직이 복잡하고 서버 부하가 발생함
 
 ---
 
-## 4. 페이지네이션 방식
+## 5. 페이지네이션 방식
 
-> Offset 기반으로 개발 후 댓글은 Cursor 기반으로 추후 고려
-
+> 스프링의 Pagable 라이브러리를 이용하여 Offset 기반으로 개발
 
 ---
 
 ## 5. 트러블슈팅 & 리팩토링 기록
-
-
-### contentType 컬럼 추가 (브라우저 바로보기)
-
-**문제**
-> 파일 바로보기 시 브라우저가 파일 종류를 알 수 없어 올바르게 렌더링하지 못함
-
-**원인**
-HTTP 응답의 `Content-Type` 헤더에 MIME 타입이 없으면 브라우저가 파일 처리 방식을 판단하지 못함.
-File 엔티티에 contentType 정보가 없어 응답 헤더에 포함할 수 없었음
-
-**해결**
-- File 엔티티에 `contentType` 컬럼 추가
-- 파일 업로드 시 contentType 저장
-- 조회 응답 시 헤더에 포함
-```
-  .contentType(MediaType.parseMediaType(response.getContentType()))
-```
-
----
 
 ### 의존성 리팩토링 (File ↔ Post 순환 의존 방지)
 
@@ -110,32 +121,52 @@ SELECT 결과를 리플렉션으로 주입할 때 부모 필드가 null이 됨
 공통 속성을 가진 부모 클래스에 `@MappedSuperclass` 추가
 → 독립 테이블 없이 자식 엔티티 테이블 컬럼으로 포함되어 정상 주입됨
 
+---
+
+### StackOverflowError - AuthenticationManager 무한 순환 참조
+
+**문제**
+> 세션 로그인 추가했는데 테스트 중에 stackoverflowError 발생
+
+**원인**
+JWT와 달리 세션은 AuthenticationManager가 인증/인가 처리를 해주는데
+UserDetailService 구현체를 안만들어서 AuthenticationManage무한 순환 발생
+
+**세션 Login 흐름**
+1. AuthenticationManager가 UserDetailService 호출
+2. UserDetailService에서 인증로직처리 (DB조회 등)
+4. DB 결과 반환
+
+UserDetailServices : 인터페이스 <- 구현체 필요
 
 ---
 
-# 세션 로그인 구현 정리
-인증 저장 전략
-세션정보 - 서버메모리 - 클라이언트에 민감 정보없음
-sessionId - httponly쿠키 - 자동저장
+### StackOverflowError - AuthenticationManager 무한 순환 참조
 
-세션 만료 전략
-새로고침/재시작 쿠키살아있으면 자동인증유지
-세션만료 - 서버가 401반환 > 로그인페이지이동
-강제로그아웃 - 관리자가 서버에서 세션삭제 - 즉시만료
-중복로그인 - maximumsession(1) - 기존 세션 자동 만료
+**문제**
+> 세션 로그인 추가했는데 테스트 중에 stackoverflowError 발생
 
-회원가입 비밀번호 유효성검사
--자바레벨 방어
--클라레벨 방어
--DB레벨 추가 공부 필요
+**원인**
+`UserDetailsService` 구현체를 만들지 않아서 Spring Security가
+`AuthenticationManager` → 기본 `UserDetailsService` → `AuthenticationManager`
+순으로 무한 순환 참조 발생
 
-트러블슈팅
-StackOverflowError - AuthenticationManager 무한 순환 참조
-Set-Cookie 없음 - 폼로그인 끄면 세션 직접 생성해야함
+**세션 Login 흐름**
+1. 로그인 요청
+2. `AuthenticationManager`가 `UserDetailsService` 호출
+3. `UserDetailsService`에서 DB 조회 후 유저 정보 반환
+4. 인증 성공 → 세션 생성 + `JSESSIONID` 쿠키 발급
 
+**해결**
+`UserDetailsService` 인터페이스 구현체 직접 생성
 
+---
 
+# 추가 공부 정리
 
+- 세션의 장점 -> 서버에서 세션 관리
+- 강제로그아웃 - 관리자가 서버에서 세션삭제 - 즉시만료
+- 중복로그인 - maximumsession(1) - 기존 세션 자동 만료
 
 
 
