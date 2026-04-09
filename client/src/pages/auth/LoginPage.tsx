@@ -2,6 +2,7 @@ import { useState } from "react"
 import type { LoginRequest } from "../../types/Auth";
 import { login } from "../../api/apis/authApi";
 import { useNavigate } from "react-router-dom";
+import { RegisterPage } from "../user/RegisterPage";
 
 export const LoginPage = () => {
     const navigate = useNavigate();
@@ -33,6 +34,7 @@ export const LoginPage = () => {
                 </form>
                 <button onClick={handleLogin}>Login</button>
                 <button onClick={() => window.location.href = " http://localhost:8080/oauth2/authorization/google"}>google 로그인</button>
+                <button onClick={() => navigate("/register")}>register</button>
             </div>
         </div>
     )
