@@ -3,7 +3,7 @@ export interface commentResponse {
     commentId: number,
     content: string,
     createdAt: string,
-    isDeleted: boolean
+    userName: string
 }
 
 export interface commentRequest {

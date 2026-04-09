@@ -74,7 +74,8 @@ public class CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(()->new CustomException(ErrorCode.POST_NOT_FOUND));
         return commentRepository.findByPostAndIsDeletedFalse(post, pageable)
-                .map(comment -> new CommentResponseDto(comment.getId(),
+                .map(comment -> new CommentResponseDto(
+                        comment.getId(),
                         comment.getContent(),
                         /**
                          * n+1문제 주의

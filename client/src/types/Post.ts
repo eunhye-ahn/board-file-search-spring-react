@@ -29,7 +29,7 @@ export interface PostListResponse {
     totalPages: number,  //페이지버튼 1-totalPages 만들기
     first: boolean, //처음버튼
     last: boolean,  //마지막버튼
-    number: number, //현재페이지
+    totalElements: number, //전체 개수
     size: number //페이지당 글 개수
 }
 

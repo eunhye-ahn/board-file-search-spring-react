@@ -24,7 +24,6 @@ export const SearchBar = ({ searchParams, setSearchParams, onSearch }: Props) =>
             <input type="date"
                 value={searchParams.startDate ?? ""}
                 onChange={(e) => setSearchParams({ ...searchParams, startDate: e.target.value })} />
-            <button>1주일</button>
             <span>~</span>
             <input type="date"
                 value={searchParams.endDate ?? ""}

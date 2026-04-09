@@ -1,11 +1,19 @@
 //파일다운로드
-export const downloadFile = (fileId: number) => {
-    window.open(`http://localhost:8080/api/files/download/${fileId}`);
+export const downloadFile = async (fileId: number) => {
+    const response = await fetch(`http://localhost:8080/api/files/download/${fileId}`, {
+        credentials: 'include'
+    });
+    const url = await response.text();
+    window.open(url, '_blank');
 }
 
 //파일바로보기
-export const viewFile = (fileId: number) => {
-    window.open(`http://localhost:8080/api/files/view/${fileId}`)
+export const viewFile = async (fileId: number) => {
+    const response = await fetch(`http://localhost:8080/api/files/view/${fileId}`, {
+        credentials: 'include'
+    });
+    const url = await response.text();
+    window.open(url, '_blank');
 }
 
 

@@ -73,6 +73,9 @@ export const HomePage = () => {
         <div>
             <button onClick={handleLogout}>로그아웃</button>
             <h1>게시판</h1>
+            <p>
+                전체 {data?.totalElements}건 {page + 1}/{data?.totalPages}페이지
+            </p>
             <SearchBar
                 searchParams={searchParams}
                 setSearchParams={setSearchParams}

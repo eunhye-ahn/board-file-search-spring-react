@@ -62,6 +62,7 @@ export const CommentSection = ({ postId }: { postId: number }) => {
                 {comments
                     .map(comment => (
                         <div key={comment.commentId}>
+                            <p>{comment.userName}</p>
                             <p>{comment.content}</p>
                             <p>{comment.createdAt.replace("T", " ")}</p>
                             <button onClick={() => { handleUpdateComment(comment) }}>수정</button>

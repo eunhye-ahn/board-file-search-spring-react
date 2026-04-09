@@ -36,7 +36,12 @@ public class CloudinaryFileStorage implements FileStorage {
             byte[] fileBytes = file.getBytes();
 
             Map<String, Object> option = new HashMap<>();
-            option.put("resource_type", "auto");
+            String contentType = file.getContentType();
+            if (contentType != null && contentType.equals("application/pdf")) {
+                option.put("resource_type", "raw");
+            } else {
+                option.put("resource_type", "auto");
+            }
             Map result = cloudinary.uploader().upload(fileBytes, option);
 
             String publicId = result.get("public_id").toString();

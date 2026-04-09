@@ -23,7 +23,7 @@ public class FileController {
 
     //파일을 다운로드하려면 파일정보를 가져와야하니까
     @GetMapping("/api/files/download/{fileId}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) {
+    public ResponseEntity<?> downloadFile(@PathVariable Long fileId) {
         FileDownloadResponseDto result = fileService.loadFile(fileId);
         if(result.getResource() != null) {
             return ResponseEntity
@@ -43,10 +43,13 @@ public class FileController {
         }
         else {
             //클라우디너리 리다이렉트
+//            return ResponseEntity
+//                    .status(HttpStatus.FOUND)
+//                    .header(HttpHeaders.LOCATION, result.getUrl() + "?fl_attachment=true" + URLEncoder.encode(result.getFileName(), StandardCharsets.UTF_8))
+//                    .build();
             return ResponseEntity
-                    .status(HttpStatus.FOUND)
-                    .header(HttpHeaders.LOCATION, result.getUrl() + "?fl_attachment=true" + URLEncoder.encode(result.getFileName(), StandardCharsets.UTF_8))
-                    .build();
+                    .status(HttpStatus.OK)
+                    .body(result.getUrl()+ "?fl_attachment=true"+result.getUrl() + "?fl_attachment=" + URLEncoder.encode(result.getFileName(), StandardCharsets.UTF_8));
         }
     }
 
@@ -65,10 +68,13 @@ public class FileController {
         }
         else{
             System.out.print(response.getUrl());
+//            return ResponseEntity
+//                    .status(HttpStatus.FOUND)
+//                    .header(HttpHeaders.LOCATION, response.getUrl())
+//                    .build();
             return ResponseEntity
-                    .status(HttpStatus.FOUND)
-                    .header(HttpHeaders.LOCATION, response.getUrl())
-                    .build();
+                    .status(HttpStatus.OK)
+                    .body(response.getUrl()+"?fl_inline=true");
         }
     }
 }
