@@ -24,7 +24,7 @@
 
 ---
 
-- **session 로그인**
+- **session 로그인 + 유효성검사(@Valid)**
 
  ![](images/session.drawio.png)
 
